@@ -1,16 +1,37 @@
-import React from 'react'
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
+import { View, Text, Image, TouchableOpacity } from 'react-native'
 import Slider from '@react-native-community/slider';
+import logoIcon from '../../assets/logo.png';
+import Clipboard from 'expo-clipboard';
+import charsPassword from '../password/password';
+import styles from '../page/styles';
 
 export default function Padlock() {
+  const [password, setPassword] = useState('');
+  const [minValue, setMinValue] = useState(10);
+
+  function generatePass() {
+    let pass = '';
+    for (let i = 0, n = charsPassword.length; i < minValue; i++) {
+      pass += charsPassword.charAt(Math.floor(Math.random() * n))
+    }
+    setPassword(pass);
+  }
+
+  function copyPassword() {
+    Clipboard.setString(password);
+    alert('Password successfully copied');
+    setPassword('')
+  }
+
   return (
 
     <View style={styles.container}>
       <Image
-        source={require('../../assets/logo.png')}
+        source={logoIcon}
         style={styles.logo}
       />
-      <Text style={styles.title}>12 Characters</Text>
+      <Text style={styles.title}>{minValue} Characters</Text>
       <View style={styles.area}>
         <Slider
           style={{ height: 50 }}
@@ -18,70 +39,21 @@ export default function Padlock() {
           maximumValue={15}
           minimumTrackTintColor="#FFA200"
           maximumTrackTintColor="#000"
-
+          value={minValue}
+          onValueChange={(valor) => setMinValue(valor.toFixed(0))}
         />
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={generatePass}>
         <Text style={styles.buttonText}>Generate password</Text>
       </TouchableOpacity>
-      <View style={styles.areaPassword}>
-        <Text style={styles.password}>Password: 55543535454</Text>
-      </View>
+
+      {password !== '' && (
+        <View style={styles.areaPassword}>
+          <Text style={styles.password} onLongPress={copyPassword}>Password: {password}</Text>
+        </View>
+      )}
     </View>
 
   )
 }
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F0F8FF99',
-    borderBottomWidth: 20,
-    borderBottomColor: '#FFA200',
-  },
-  logo: {
-    marginBottom: 60
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold'
-  },
-  area: {
-    marginBottom: 15,
-    marginTop: 15,
-    backgroundColor: '#FFF',
-    width: '90%',
-    borderRadius: 7,
-  },
-  areaPassword: {
-    marginBottom: 15,
-    marginTop: 15,
-    backgroundColor: '#FFF7',
-    width: '90%',
-    borderRadius: 7,
-    borderBottomWidth: 3,
-    borderBottomColor: '#FFA200',
-  },
-  button: {
-    backgroundColor: '#FFA200',
-    width: '80%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 7,
-    marginTop: 25,
-  },
-  buttonText: {
-    fontSize: 20,
-    color: '#FFF',
-    fontWeight: 'bold'
-  },
-  password: {
-    padding: 10,
-    textAlign: 'center',
-    fontSize: 20,
-  }
-})
